@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate failure;
+extern crate reqwest;
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 extern crate toml;
 extern crate ws;
 
@@ -12,11 +14,23 @@ use std::env;
 use failure::Error;
 
 mod errors;
+mod objects;
+
+use objects::{Config, Connect};
 use errors::*;
 
-#[derive(Deserialize, Debug)]
-struct Config {
-    token: String,
+macro_rules! unwrap_or_exit {
+    ($c:expr, $e:expr) => {
+        match $c {
+            Ok(x) => x,
+            Err(e) => {
+                eprintln!($e);
+                eprintln!("{}", e.cause());
+                std::process::exit(1);
+            }
+        };
+
+    }
 }
 
 fn load_config() -> Result<Config, Error> {
@@ -28,15 +42,20 @@ fn load_config() -> Result<Config, Error> {
     Ok(config)
 }
 
+fn get_ws_url(token: &str) -> Result<String, Error> {
+    let mut resp = reqwest::get(&format!(
+        "https://slack.com/api/rtm.connect?token={}",
+        token
+    ))?;
+    let result: Connect = resp.json()?;
+    if !result.ok {
+        bail!(RTMConnectError)
+    }
+    Ok(result.url)
+}
+
 fn main() {
-    let config = match load_config() {
-        Ok(config) => config,
-        Err(e) => {
-            eprintln!("Error loading config!");
-            eprintln!("{}", e.cause());
-            std::process::exit(1);
-        }
-    };
-    println!("{:?}", config);
-    println!("Hello, world!");
+    let config = unwrap_or_exit!(load_config(), "Error loading config!");
+    let ws_url = unwrap_or_exit!(get_ws_url(config.token), "Error connecting to Slack");
+    println!("{}", ws_url);
 }
