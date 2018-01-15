@@ -12,7 +12,6 @@ extern crate ws;
 use std::fs::File;
 use std::io::Read;
 use std::env;
-use std::io;
 use std::thread;
 use std::sync::mpsc;
 
@@ -58,6 +57,12 @@ fn get_ws_url(token: &str) -> Result<String, Error> {
     Ok(result.url)
 }
 
+fn make_rl_config(config: &api_items::Config) -> rustyline::Config {
+    rustyline::Config::builder()
+        .edit_mode(config.edit_mode.clone().into())
+        .build()
+}
+
 fn connect_ws(ws_url: String, tx: mpsc::Sender<ws_client::WSEvent>) -> Result<(), Error> {
     ws::connect(ws_url, |out| ws_client::Client {
         out: out,
@@ -76,11 +81,14 @@ fn main() {
         unwrap_or_exit!(connect_ws(ws_url, tx.clone()), "Error connecting to Slack");
     });
 
+    let config = make_rl_config(&config);
     if let Ok(ws_client::WSEvent::Connected(client)) = rx.recv() {
-        let mut rl = rustyline::Editor::<()>::new();
+        let mut rl = rustyline::Editor::<()>::with_config(config);
         loop {
             match rl.readline(">") {
-                Ok(_line) => {}
+                Ok(line) => {
+                    rl.add_history_entry(line);
+                }
                 Err(_) => {
                     client.close().unwrap();
                     break;
