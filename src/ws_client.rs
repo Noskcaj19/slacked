@@ -23,16 +23,15 @@ impl RTMApi {
     }
 }
 
-#[derive(Debug)]
 pub enum WSEvent {
-    Connected,
+    Connected(Client),
     Disconnected,
 }
 
+#[derive(Clone)]
 pub struct Client {
-    /// WS Sender
     pub out: ws::Sender,
-    pub status_sender: mpsc::Sender<WSEvent>,
+    pub status: mpsc::Sender<WSEvent>,
 }
 
 impl Client {
@@ -40,21 +39,27 @@ impl Client {
     pub fn send(&self, api: RTMApi) -> Result<(), ws::Error> {
         self.out.send(api.encode())
     }
+
+    pub fn close(&self) -> Result<(), ws::Error> {
+        self.out.close(ws::CloseCode::Normal)
+    }
 }
 
 impl ws::Handler for Client {
     fn on_open(&mut self, _: ws::Handshake) -> Result<(), ws::Error> {
-        self.status_sender.send(WSEvent::Connected).map_err(|err| {
-            ws::Error::new(
-                ws::ErrorKind::Internal,
-                format!("Unable to communicate between threads: {:?}.", err),
-            )
-        })
+        self.status
+            .send(WSEvent::Connected(self.clone()))
+            .map_err(|err| {
+                ws::Error::new(
+                    ws::ErrorKind::Internal,
+                    format!("Unable to communicate between threads: {:?}.", err),
+                )
+            })
     }
 
     fn on_close(&mut self, _code: ws::CloseCode, _reason: &str) {
         // TODO: Error handling for this maybe?
-        self.status_sender.send(WSEvent::Disconnected);
+        let _ = self.status.send(WSEvent::Disconnected);
     }
 
     fn on_message(&mut self, msg: ws::Message) -> Result<(), ws::Error> {

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate failure;
 extern crate reqwest;
+extern crate rustyline;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
@@ -59,7 +60,7 @@ fn get_ws_url(token: &str) -> Result<String, Error> {
 fn connect_ws(ws_url: String, tx: mpsc::Sender<ws_client::WSEvent>) -> Result<(), Error> {
     ws::connect(ws_url, |out| ws_client::Client {
         out: out,
-        status_sender: tx.clone(),
+        status: tx.clone(),
     })?;
     Ok(())
 }
@@ -74,7 +75,17 @@ fn main() {
         unwrap_or_exit!(connect_ws(ws_url, tx.clone()), "Error connecting to Slack");
     });
 
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
+    if let Ok(ws_client::WSEvent::Connected(client)) = rx.recv() {
+        let mut rl = rustyline::Editor::<()>::new();
+        loop {
+            match rl.readline(">") {
+                Ok(_line) => {}
+                Err(_) => {
+                    client.close().unwrap();
+                    break;
+                }
+            };
+        }
+    };
     client_thread.join().unwrap();
 }
