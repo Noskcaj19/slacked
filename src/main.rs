@@ -5,6 +5,7 @@ extern crate rustyline;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate slack_api;
 extern crate toml;
 extern crate ws;
 
