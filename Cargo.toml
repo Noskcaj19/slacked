@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 failure = "0.1.1"
+linenoise-rust = "0.2.0"
 reqwest = "0.8.2"
 serde = "1.0.27"
 serde_derive = "1.0.27"
@@ -12,10 +13,10 @@ serde_json = "1.0.9"
 slack_api = "0.19.0"
 toml = "0.4.5"
 
-[dependencies.ws]
-features = ["ssl"]
-version = "0.7.3"
-
 [dependencies.rustyline]
 git = "https://github.com/gwenn/rustyline"
 rev = "59c4b7"
+
+[dependencies.ws]
+features = ["ssl"]
+version = "0.7.3"
