@@ -46,15 +46,10 @@ fn load_config() -> Result<api_items::Config, Error> {
 }
 
 fn get_ws_url(token: &str) -> Result<String, Error> {
-    let mut resp = reqwest::get(&format!(
-        "https://slack.com/api/rtm.connect?token={}",
-        token
-    ))?;
-    let result: api_items::Connect = resp.json()?;
-    if !result.ok {
-        bail!(RTMConnectError)
-    }
-    Ok(result.url)
+    let client = slack_api::requests::default_client().unwrap();
+    let response = slack_api::rtm::start(&client, &token, &Default::default());
+    let url = response.and_then(|r| Ok(r.url))?;
+    Ok(url.ok_or(errors::RTMConnectError)?)
 }
 
 fn connect_ws(ws_url: String, tx: mpsc::Sender<ws_client::WSEvent>) -> Result<(), Error> {
