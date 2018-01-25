@@ -1,3 +1,5 @@
+#![feature(universal_impl_trait)]
+
 #[macro_use]
 extern crate failure;
 extern crate linenoise;
@@ -20,6 +22,8 @@ use failure::Error;
 mod errors;
 mod api_items;
 mod ws_client;
+mod commands;
+mod handler;
 
 use errors::*;
 
@@ -75,7 +79,7 @@ fn main() {
             match linenoise::input("> ") {
                 Some(line) => {
                     linenoise::history_add(&line);
-                    println!("Read line: {}", line)
+                    handler::handle_line(&line);
                 }
                 None => {
                     client.close().unwrap();
