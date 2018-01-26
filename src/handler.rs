@@ -12,6 +12,12 @@ impl Handler {
         Handler { last_error: None }
     }
 
+    fn show_err(&self) {
+        if let Some(err) = self.last_error {
+            println!("{}", err)
+        }
+    }
+
     fn handle_err(&mut self) {
         self.last_error = Some(ErrorKind::UnknownCommand);
         println!("?")
@@ -30,6 +36,7 @@ impl Handler {
             Action::Print => unimplemented!(),
             Action::Append => unimplemented!(),
             Action::Delete => unimplemented!(),
+            Action::Help => self.show_err(),
             Action::Unknown => self.handle_err(),
         }
     }

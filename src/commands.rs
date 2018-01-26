@@ -26,6 +26,8 @@ pub enum Action {
     Append,
     // x - delete
     Delete,
+    // h - help
+    Help,
     // - `?`
     Unknown,
 }
@@ -42,6 +44,7 @@ impl Action {
             'p' => Action::Print,
             'a' => Action::Append,
             'x' => Action::Delete,
+            'h' => Action::Help,
             _ => Action::Unknown,
         }
     }
