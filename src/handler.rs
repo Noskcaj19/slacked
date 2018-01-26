@@ -18,8 +18,8 @@ impl Handler {
         }
     }
 
-    fn handle_err(&mut self) {
-        self.last_error = Some(ErrorKind::UnknownCommand);
+    fn handle_err(&mut self, err: ErrorKind) {
+        self.last_error = Some(err);
         println!("?")
     }
 
@@ -37,7 +37,7 @@ impl Handler {
             Action::Append => unimplemented!(),
             Action::Delete => unimplemented!(),
             Action::Help => self.show_err(),
-            Action::Unknown => self.handle_err(),
+            Action::Unknown => self.handle_err(ErrorKind::UnknownCommand),
         }
     }
 }
