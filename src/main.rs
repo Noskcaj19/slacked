@@ -25,6 +25,7 @@ mod ws_client;
 mod commands;
 mod handler;
 mod interface_errors;
+mod api_utils;
 
 use errors::*;
 
@@ -75,7 +76,7 @@ fn main() {
         unwrap_or_exit!(connect_ws(ws_url, tx.clone()), "Error connecting to Slack");
     });
 
-    let mut handler = handler::Handler::new();
+    let mut handler = handler::Handler::new(&config.token);
     if let Ok(ws_client::WSEvent::Connected(client)) = rx.recv() {
         loop {
             match linenoise::input("") {

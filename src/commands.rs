@@ -1,24 +1,24 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Address {
     NumberOffset(isize),
     TimeOffset(isize),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Range {
     DoubleEnded { start: Address, end: Address },
     From(Address),
     Single(Address),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParsedCommand {
     pub range: Option<Range>,
     pub action: Action,
     pub arguments: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Action {
     // p - print
     Print,
@@ -28,6 +28,8 @@ pub enum Action {
     Delete,
     // h - help
     Help,
+    // g - get info
+    Get,
     // - `?`
     Unknown,
 }
@@ -45,6 +47,7 @@ impl Action {
             'a' => Action::Append,
             'x' => Action::Delete,
             'h' => Action::Help,
+            'g' => Action::Get,
             _ => Action::Unknown,
         }
     }
