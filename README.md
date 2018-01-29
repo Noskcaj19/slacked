@@ -10,3 +10,12 @@ A Slack client designed with an `ed`-like interface
 ```toml
 token = "xoxp-....."
 ```
+
+# Tips
+
+## Identifiers
+
+* `@` - Users
+    * Muliple users seperated by a comma indicates a mpim or usergroup
+* `#` - Channel
+* `%` - Private channel (group)
