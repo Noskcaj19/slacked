@@ -44,7 +44,7 @@ macro_rules! unwrap_or_exit {
 
 fn load_config() -> Result<api_items::Config, Error> {
     let home_dir = env::home_dir().ok_or(HomeDirError)?;
-    let mut file = File::open(home_dir.join(".sled.toml"))?;
+    let mut file = File::open(home_dir.join(".config/sled/config.toml"))?;
     let mut buf = String::new();
     file.read_to_string(&mut buf)?;
     let config: api_items::Config = toml::from_str(&buf)?;
