@@ -18,4 +18,3 @@ token = "xoxp-....."
 * `@` - Users
     * Muliple users seperated by a comma indicates a mpim or usergroup
 * `#` - Channel
-* `%` - Private channel (group)
